@@ -31,8 +31,8 @@ struct Fraction(f64);
 struct Spin(Fraction);
 
 #[derive(Debug)]
-/// Opaque type that represents the charge of a fermion as a fraction
-struct FermionCharge(Fraction);
+/// Opaque type that represents the charge of a particle as a fraction
+struct ParticleCharge(Fraction);
 
 #[derive(Debug)]
 /// Represents the mass of a particle.
@@ -44,20 +44,20 @@ enum ParticleMass {
     Mass(Mass),
 }
 
-impl FermionCharge {
-    /// Get the electric charge of this fermion
+impl ParticleCharge {
+    /// Get the electric charge of this particle
     fn to_charge(&self) -> ElectricCharge {
         ElectricCharge::new::<coulomb>(&self.0 .0 * e)
     }
 
-    /// Get the fractional representation of a fermion's charge from the real value of an electric charge
-    fn from_charge(charge: ElectricCharge) -> FermionCharge {
-        FermionCharge(Fraction(charge.value / e))
+    /// Get the fractional representation of a particle's charge from the real value of an electric charge
+    fn from_charge(charge: ElectricCharge) -> ParticleCharge {
+        ParticleCharge(Fraction(charge.value / e))
     }
 }
 
 #[derive(Debug, Copy, Clone)]
-/// Represents possible quantum flavors for a given fermion or compound particle
+/// Represents possible quantum flavors for a given particle
 struct QuantumFlavors {
     pub strangeness: i8,
     pub charm: i8,
@@ -110,8 +110,8 @@ impl QuantumFlavors {
 }
 
 #[derive(Debug)]
-/// A series of properties that describe a fermion
-struct Fermion {
+/// A series of properties that describe a fundamental particle
+struct FundamentalParticle {
     color: Option<ColorCharge>,
     spin: Spin,
     charge: ElectricCharge,
@@ -119,115 +119,115 @@ struct Fermion {
     flavors: QuantumFlavors,
 }
 
-impl Fermion {
-    /// Produces an anti-particle of a given fermion
-    fn antiparticle(self) -> Fermion {
-        Fermion::new(
+impl FundamentalParticle {
+    /// Produces an anti-particle of a given particle
+    fn antiparticle(self) -> FundamentalParticle {
+        FundamentalParticle::new(
             // needs inverting
             self.color,
             // needs inverting
             self.spin,
             // needs inverting
-            FermionCharge::from_charge(self.charge),
+            ParticleCharge::from_charge(self.charge),
             self.mass,
             self.flavors.invert(),
         )
     }
 
-    /// Initialises a new fermion from defaults that represent an up quark
-    fn up_quark() -> Fermion {
-        Fermion::new(
+    /// Initialises a new particle from defaults that represent an up quark
+    fn up_quark() -> FundamentalParticle {
+        FundamentalParticle::new(
             Some(ColorCharge(Some(Color::Positive), None)),
             Spin(Fraction(1. / 2.)),
-            FermionCharge(Fraction(2. / 3.)),
+            ParticleCharge(Fraction(2. / 3.)),
             ParticleMass::Energy(Energy::new::<megaelectronvolt>(2.2)),
             QuantumFlavors::default(),
         )
     }
 
-    /// Initialises a new fermion from defaults that represent a down quark
-    fn down_quark() -> Fermion {
-        Fermion::new(
+    /// Initialises a new particle from defaults that represent a down quark
+    fn down_quark() -> FundamentalParticle {
+        FundamentalParticle::new(
             Some(ColorCharge(Some(Color::Positive), None)),
             Spin(Fraction(1. / 2.)),
-            FermionCharge(Fraction(-(1. / 3.))),
+            ParticleCharge(Fraction(-(1. / 3.))),
             ParticleMass::Energy(Energy::new::<megaelectronvolt>(4.7)),
             QuantumFlavors::default(),
         )
     }
 
-    /// Initialises a new fermion from defaults that represent a charm quark
-    fn charm_quark() -> Fermion {
-        Fermion::new(
+    /// Initialises a new particle from defaults that represent a charm quark
+    fn charm_quark() -> FundamentalParticle {
+        FundamentalParticle::new(
             Some(ColorCharge(Some(Color::Positive), None)),
             Spin(Fraction(1. / 2.)),
-            FermionCharge(Fraction((2. / 3.))),
+            ParticleCharge(Fraction((2. / 3.))),
             ParticleMass::Energy(Energy::new::<gigaelectronvolt>(1.275)),
             QuantumFlavors::default(),
         )
     }
 
-    /// Initialises a new fermion from defaults that represent a strange quark
-    fn strange_quark() -> Fermion {
-        Fermion::new(
+    /// Initialises a new particle from defaults that represent a strange quark
+    fn strange_quark() -> FundamentalParticle {
+        FundamentalParticle::new(
             Some(ColorCharge(Some(Color::Positive), None)),
             Spin(Fraction(1. / 2.)),
-            FermionCharge(Fraction(-(1. / 3.))),
+            ParticleCharge(Fraction(-(1. / 3.))),
             ParticleMass::Energy(Energy::new::<megaelectronvolt>(95.)),
             QuantumFlavors::default(),
         )
     }
 
-    /// Initialises a new fermion from defaults that represent a top quark
-    fn top_quark() -> Fermion {
-        Fermion::new(
+    /// Initialises a new particle from defaults that represent a top quark
+    fn top_quark() -> FundamentalParticle {
+        FundamentalParticle::new(
             Some(ColorCharge(Some(Color::Positive), None)),
             Spin(Fraction(1. / 2.)),
-            FermionCharge(Fraction((2. / 3.))),
+            ParticleCharge(Fraction((2. / 3.))),
             ParticleMass::Energy(Energy::new::<gigaelectronvolt>(172.76)),
             QuantumFlavors::default(),
         )
     }
 
-    /// Initialises a new fermion from defaults that represent a bottom quark
-    fn bottom_quark() -> Fermion {
-        Fermion::new(
+    /// Initialises a new particle from defaults that represent a bottom quark
+    fn bottom_quark() -> FundamentalParticle {
+        FundamentalParticle::new(
             Some(ColorCharge(Some(Color::Positive), None)),
             Spin(Fraction(1. / 2.)),
-            FermionCharge(Fraction(-(1. / 3.))),
+            ParticleCharge(Fraction(-(1. / 3.))),
             ParticleMass::Energy(Energy::new::<gigaelectronvolt>(4.18)),
             QuantumFlavors::default(),
         )
     }
 
-    fn electron() -> Fermion {
+    fn electron() -> FundamentalParticle {
         todo!()
     }
-    fn muon() -> Fermion {
+    fn muon() -> FundamentalParticle {
         todo!()
     }
-    fn tau() -> Fermion {
+    fn tau() -> FundamentalParticle {
         todo!()
     }
-    fn electron_neutrino() -> Fermion {
+    fn electron_neutrino() -> FundamentalParticle {
         todo!()
     }
-    fn muon_neutrino() -> Fermion {
+    fn muon_neutrino() -> FundamentalParticle {
         todo!()
     }
-    fn tau_neutrino() -> Fermion {
+    fn tau_neutrino() -> FundamentalParticle {
         todo!()
     }
 
-    /// Initialise a new fermion
+    /// Initialise a new particle
     fn new(
         color: Option<ColorCharge>,
         spin: Spin,
-        charge: FermionCharge,
+        charge: ParticleCharge,
         mass: ParticleMass,
         flavors: QuantumFlavors,
-    ) -> Fermion {
-        Fermion {
+    ) -> FundamentalParticle {
+        FundamentalParticle {
             color,
             spin,
             mass,
@@ -237,7 +237,7 @@ impl Fermion {
     }
 }
 
-impl Massive for Fermion {
+impl Massive for FundamentalParticle {
     fn get_mass(&self) -> Mass {
         match &self.mass {
             ParticleMass::Energy(energy) => Energetics::calculate_mass(*energy),
@@ -246,7 +246,7 @@ impl Massive for Fermion {
     }
 }
 
-impl Energetic for Fermion {
+impl Energetic for FundamentalParticle {
     fn get_energy(&self) -> Energy {
         match &self.mass {
             ParticleMass::Energy(energy) => *energy,
@@ -294,7 +294,9 @@ impl Gravitation {
 #[cfg(test)]
 mod tests {
     use crate::Color::Positive;
-    use crate::{e, Color, ColorCharge, Fermion, FermionCharge, Fraction, ParticleMass, Spin};
+    use crate::{
+        e, Color, ColorCharge, Fraction, FundamentalParticle, ParticleCharge, ParticleMass, Spin,
+    };
     use approx::relative_eq;
     use uom::si::electric_charge::coulomb;
     use uom::si::electric_charge::Units::franklin;
@@ -304,27 +306,27 @@ mod tests {
     #[test]
     /// Test to ensure that conversions between fractional and real representations of charges work
     fn fraction_from_real_charge() {
-        let charge = FermionCharge(Fraction(2. / 3.)).to_charge();
-        let frac = FermionCharge::from_charge(charge);
+        let charge = ParticleCharge(Fraction(2. / 3.)).to_charge();
+        let frac = ParticleCharge::from_charge(charge);
         let charge_2 = frac.to_charge();
 
         assert_eq!(charge.value, charge_2.value);
     }
 
     #[test]
-    /// Test to ensure that fermions will produce a neutral charge in compound
-    fn fermion_charge_cancellation() {
-        let charge_1 = FermionCharge(Fraction(-(1. / 3.))).to_charge();
-        let charge_2 = FermionCharge(Fraction(-(1. / 3.))).to_charge();
-        let charge_3 = FermionCharge(Fraction(2. / 3.)).to_charge();
+    /// Test to ensure that particle will produce a neutral charge in compound
+    fn particle_charge_cancellation() {
+        let charge_1 = ParticleCharge(Fraction(-(1. / 3.))).to_charge();
+        let charge_2 = ParticleCharge(Fraction(-(1. / 3.))).to_charge();
+        let charge_3 = ParticleCharge(Fraction(2. / 3.)).to_charge();
         assert_eq!(
             charge_1 + charge_2 + charge_3,
             ElectricCharge::new::<coulomb>(0.)
         );
 
-        let charge_1 = FermionCharge(Fraction((2. / 3.))).to_charge();
-        let charge_2 = FermionCharge(Fraction((2. / 3.))).to_charge();
-        let charge_3 = FermionCharge(Fraction(-(1. / 3.))).to_charge();
+        let charge_1 = ParticleCharge(Fraction((2. / 3.))).to_charge();
+        let charge_2 = ParticleCharge(Fraction((2. / 3.))).to_charge();
+        let charge_3 = ParticleCharge(Fraction(-(1. / 3.))).to_charge();
         relative_eq!(
             (charge_1 + charge_2 + charge_3).value,
             ElectricCharge::new::<coulomb>(1. * e).value
