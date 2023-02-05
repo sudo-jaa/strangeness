@@ -1,4 +1,7 @@
+mod chromodynamics;
 mod constants;
+mod electrodynamics;
+mod field;
 
 use crate::constants::e;
 use constants::{h, C, G};
@@ -18,17 +21,17 @@ enum Color {
     Negative,
 }
 
-#[derive(Debug)]
-/// Represents possible combinations of color charges in quarks and gluons. Needs to be replaced with SU(3) Glen-mann matrix
-struct ColorCharge(Option<Color>, Option<Color>);
+/// Represents possible combinations of color charges in quarks and gluons. This is just a model,
+/// but the internal representation needs to be replaced with SU(3) Glen-mann matrix.
+pub type ColorCharge = Option<Vec<Color>>;
 
 #[derive(Debug)]
 /// Represents a fractional value
-struct Fraction(f64);
+pub struct Fraction(f64);
 
 #[derive(Debug)]
 /// Opaque type that represents a spin value as a fraction
-struct Spin(Fraction);
+pub struct Spin(Fraction);
 
 #[derive(Debug)]
 /// Opaque type that represents the charge of a particle as a fraction
@@ -39,7 +42,7 @@ struct ParticleCharge(Fraction);
 /// Often in particle physics, the energy and mass of a given particle is used in equivalence.
 /// Because of mass-energy equivalence, you can reason about the mass and energy of a particle as a single value
 /// that can be computed on the fly from the value you actually have.
-enum ParticleMass {
+pub enum ParticleMass {
     Energy(Energy),
     Mass(Mass),
 }
@@ -58,7 +61,7 @@ impl ParticleCharge {
 
 #[derive(Debug, Copy, Clone)]
 /// Represents possible quantum flavors for a given particle
-struct QuantumFlavors {
+pub struct QuantumFlavors {
     pub strangeness: i8,
     pub charm: i8,
     pub topness: i8,
@@ -89,6 +92,8 @@ impl Default for QuantumFlavors {
     }
 }
 
+// Vec::with_capacity
+
 impl QuantumFlavors {
     /// Combine any number of quantum flavor systems into a composite quantum flavor system
     fn combine(flavors: Vec<QuantumFlavors>) -> QuantumFlavors {
@@ -109,20 +114,31 @@ impl QuantumFlavors {
     }
 }
 
+/// TODO: output of particle addition
 #[derive(Debug)]
-/// A series of properties that describe a fundamental particle
-struct FundamentalParticle {
-    color: Option<ColorCharge>,
-    spin: Spin,
-    charge: ElectricCharge,
-    mass: ParticleMass,
-    flavors: QuantumFlavors,
+struct ParticleCombinationOutput {
+    particles: Option<Vec<Particle>>,
+    energy: Energy,
 }
 
-impl FundamentalParticle {
+#[derive(Debug)]
+/// A series of properties that describe a fundamental particle
+pub struct Particle {
+    pub color: ColorCharge,
+    pub spin: Spin,
+    pub charge: ElectricCharge,
+    pub mass: ParticleMass,
+    pub flavors: QuantumFlavors,
+}
+
+impl Particle {
+    fn combine(particles: Vec<Particle>) -> ParticleCombinationOutput {
+        todo!()
+    }
+
     /// Produces an anti-particle of a given particle
-    fn antiparticle(self) -> FundamentalParticle {
-        FundamentalParticle::new(
+    fn antiparticle(self) -> Particle {
+        Particle::new(
             // needs inverting
             self.color,
             // needs inverting
@@ -135,9 +151,11 @@ impl FundamentalParticle {
     }
 
     /// Initialises a new particle from defaults that represent an up quark
-    fn up_quark() -> FundamentalParticle {
-        FundamentalParticle::new(
-            Some(ColorCharge(Some(Color::Positive), None)),
+    fn up_quark() -> Particle {
+        let mut color: Vec<Color> = Vec::with_capacity(1);
+        color.push(Color::Positive);
+        Particle::new(
+            Some(color),
             Spin(Fraction(1. / 2.)),
             ParticleCharge(Fraction(2. / 3.)),
             ParticleMass::Energy(Energy::new::<megaelectronvolt>(2.2)),
@@ -146,9 +164,11 @@ impl FundamentalParticle {
     }
 
     /// Initialises a new particle from defaults that represent a down quark
-    fn down_quark() -> FundamentalParticle {
-        FundamentalParticle::new(
-            Some(ColorCharge(Some(Color::Positive), None)),
+    fn down_quark() -> Particle {
+        let mut color: Vec<Color> = Vec::with_capacity(1);
+        color.push(Color::Positive);
+        Particle::new(
+            Some(color),
             Spin(Fraction(1. / 2.)),
             ParticleCharge(Fraction(-(1. / 3.))),
             ParticleMass::Energy(Energy::new::<megaelectronvolt>(4.7)),
@@ -157,9 +177,11 @@ impl FundamentalParticle {
     }
 
     /// Initialises a new particle from defaults that represent a charm quark
-    fn charm_quark() -> FundamentalParticle {
-        FundamentalParticle::new(
-            Some(ColorCharge(Some(Color::Positive), None)),
+    fn charm_quark() -> Particle {
+        let mut color: Vec<Color> = Vec::with_capacity(1);
+        color.push(Color::Positive);
+        Particle::new(
+            Some(color),
             Spin(Fraction(1. / 2.)),
             ParticleCharge(Fraction((2. / 3.))),
             ParticleMass::Energy(Energy::new::<gigaelectronvolt>(1.275)),
@@ -168,9 +190,11 @@ impl FundamentalParticle {
     }
 
     /// Initialises a new particle from defaults that represent a strange quark
-    fn strange_quark() -> FundamentalParticle {
-        FundamentalParticle::new(
-            Some(ColorCharge(Some(Color::Positive), None)),
+    fn strange_quark() -> Particle {
+        let mut color: Vec<Color> = Vec::with_capacity(1);
+        color.push(Color::Positive);
+        Particle::new(
+            Some(color),
             Spin(Fraction(1. / 2.)),
             ParticleCharge(Fraction(-(1. / 3.))),
             ParticleMass::Energy(Energy::new::<megaelectronvolt>(95.)),
@@ -179,9 +203,11 @@ impl FundamentalParticle {
     }
 
     /// Initialises a new particle from defaults that represent a top quark
-    fn top_quark() -> FundamentalParticle {
-        FundamentalParticle::new(
-            Some(ColorCharge(Some(Color::Positive), None)),
+    fn top_quark() -> Particle {
+        let mut color: Vec<Color> = Vec::with_capacity(1);
+        color.push(Color::Positive);
+        Particle::new(
+            Some(color),
             Spin(Fraction(1. / 2.)),
             ParticleCharge(Fraction((2. / 3.))),
             ParticleMass::Energy(Energy::new::<gigaelectronvolt>(172.76)),
@@ -190,9 +216,11 @@ impl FundamentalParticle {
     }
 
     /// Initialises a new particle from defaults that represent a bottom quark
-    fn bottom_quark() -> FundamentalParticle {
-        FundamentalParticle::new(
-            Some(ColorCharge(Some(Color::Positive), None)),
+    fn bottom_quark() -> Particle {
+        let mut color: Vec<Color> = Vec::with_capacity(1);
+        color.push(Color::Positive);
+        Particle::new(
+            Some(color),
             Spin(Fraction(1. / 2.)),
             ParticleCharge(Fraction(-(1. / 3.))),
             ParticleMass::Energy(Energy::new::<gigaelectronvolt>(4.18)),
@@ -200,34 +228,34 @@ impl FundamentalParticle {
         )
     }
 
-    fn electron() -> FundamentalParticle {
+    fn electron() -> Particle {
         todo!()
     }
-    fn muon() -> FundamentalParticle {
+    fn muon() -> Particle {
         todo!()
     }
-    fn tau() -> FundamentalParticle {
+    fn tau() -> Particle {
         todo!()
     }
-    fn electron_neutrino() -> FundamentalParticle {
+    fn electron_neutrino() -> Particle {
         todo!()
     }
-    fn muon_neutrino() -> FundamentalParticle {
+    fn muon_neutrino() -> Particle {
         todo!()
     }
-    fn tau_neutrino() -> FundamentalParticle {
+    fn tau_neutrino() -> Particle {
         todo!()
     }
 
     /// Initialise a new particle
     fn new(
-        color: Option<ColorCharge>,
+        color: ColorCharge,
         spin: Spin,
         charge: ParticleCharge,
         mass: ParticleMass,
         flavors: QuantumFlavors,
-    ) -> FundamentalParticle {
-        FundamentalParticle {
+    ) -> Particle {
+        Particle {
             color,
             spin,
             mass,
@@ -237,7 +265,7 @@ impl FundamentalParticle {
     }
 }
 
-impl Massive for FundamentalParticle {
+impl Massive for Particle {
     fn get_mass(&self) -> Mass {
         match &self.mass {
             ParticleMass::Energy(energy) => Energetics::calculate_mass(*energy),
@@ -246,7 +274,7 @@ impl Massive for FundamentalParticle {
     }
 }
 
-impl Energetic for FundamentalParticle {
+impl Energetic for Particle {
     fn get_energy(&self) -> Energy {
         match &self.mass {
             ParticleMass::Energy(energy) => *energy,
@@ -294,14 +322,21 @@ impl Gravitation {
 #[cfg(test)]
 mod tests {
     use crate::Color::Positive;
-    use crate::{
-        e, Color, ColorCharge, Fraction, FundamentalParticle, ParticleCharge, ParticleMass, Spin,
-    };
+    use crate::{e, Color, ColorCharge, Fraction, Particle, ParticleCharge, ParticleMass, Spin};
     use approx::relative_eq;
     use uom::si::electric_charge::coulomb;
     use uom::si::electric_charge::Units::franklin;
     use uom::si::energy::megaelectronvolt;
     use uom::si::f64::{ElectricCharge, Energy};
+
+    #[test]
+    fn add_fundamental_particles() {
+        let up = Particle::up_quark();
+        let d1 = Particle::down_quark();
+        let d2 = Particle::down_quark();
+        let compound = Particle::combine(vec![up, d1, d2]);
+        println!("CMP {:?}", compound);
+    }
 
     #[test]
     /// Test to ensure that conversions between fractional and real representations of charges work
