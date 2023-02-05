@@ -153,6 +153,9 @@ struct Imaginary(i8);
 pub struct Chromodynamics;
 impl Chromodynamics {
     pub fn simulate(components: Vec<Particle>) -> Vec<Particle> {
+        // TODO find the matrix representation of the three quark colors and try to intialise one for
+        // each component in the system. If we have more or less than three we have applied the force to an
+        // unstable system.
         let gellmann_matrices = components
             .iter()
             .map(|particle| {
