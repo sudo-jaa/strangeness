@@ -51,7 +51,8 @@ pub enum ParticleMass {
 impl ParticleCharge {
     /// Get the electric charge of this particle
     fn to_charge(&self) -> ElectricCharge {
-        ElectricCharge::new::<coulomb>(&self.0 .0 * e)
+        let charge = &self.0;
+        ElectricCharge::new::<coulomb>(charge.0 * e)
     }
 
     /// Get the fractional representation of a particle's charge from the real value of an electric charge
@@ -65,8 +66,8 @@ impl ParticleCharge {
 pub struct QuantumFlavors {
     pub strangeness: i8,
     pub charm: i8,
-    pub topness: i8,
-    pub bottomness: i8,
+    pub truth: i8,
+    pub beauty: i8,
 }
 
 impl Add for QuantumFlavors {
@@ -76,8 +77,8 @@ impl Add for QuantumFlavors {
         QuantumFlavors {
             strangeness: self.strangeness + rhs.strangeness,
             charm: self.charm + rhs.charm,
-            topness: self.topness + rhs.topness,
-            bottomness: self.bottomness + rhs.bottomness,
+            truth: self.truth + rhs.truth,
+            beauty: self.beauty + rhs.beauty,
         }
     }
 }
@@ -87,8 +88,8 @@ impl Default for QuantumFlavors {
         QuantumFlavors {
             strangeness: 0,
             charm: 0,
-            topness: 0,
-            bottomness: 0,
+            truth: 0,
+            beauty: 0,
         }
     }
 }
@@ -107,10 +108,10 @@ impl QuantumFlavors {
     /// This is useful when initialising antiparticles from regular particles
     fn invert(&self) -> QuantumFlavors {
         QuantumFlavors {
-            topness: self.topness.neg(),
+            truth: self.truth.neg(),
             charm: self.charm.neg(),
             strangeness: self.strangeness.neg(),
-            bottomness: self.bottomness.neg(),
+            beauty: self.beauty.neg(),
         }
     }
 }
@@ -182,7 +183,12 @@ impl Particle {
             Spin(Fraction(1. / 2.)),
             ParticleCharge(Fraction((2. / 3.))),
             ParticleMass::Energy(Energy::new::<gigaelectronvolt>(1.275)),
-            QuantumFlavors::default(),
+            QuantumFlavors {
+                strangeness: 0,
+                charm: 1,
+                truth: 0,
+                beauty: 0,
+            },
         )
     }
 
@@ -195,7 +201,12 @@ impl Particle {
             Spin(Fraction(1. / 2.)),
             ParticleCharge(Fraction(-(1. / 3.))),
             ParticleMass::Energy(Energy::new::<megaelectronvolt>(95.)),
-            QuantumFlavors::default(),
+            QuantumFlavors {
+                strangeness: -1,
+                charm: 0,
+                truth: 0,
+                beauty: 0,
+            },
         )
     }
 
@@ -208,7 +219,12 @@ impl Particle {
             Spin(Fraction(1. / 2.)),
             ParticleCharge(Fraction((2. / 3.))),
             ParticleMass::Energy(Energy::new::<gigaelectronvolt>(172.76)),
-            QuantumFlavors::default(),
+            QuantumFlavors {
+                strangeness: 0,
+                charm: 0,
+                truth: 1,
+                beauty: 0,
+            },
         )
     }
 
@@ -221,7 +237,12 @@ impl Particle {
             Spin(Fraction(1. / 2.)),
             ParticleCharge(Fraction(-(1. / 3.))),
             ParticleMass::Energy(Energy::new::<gigaelectronvolt>(4.18)),
-            QuantumFlavors::default(),
+            QuantumFlavors {
+                strangeness: 0,
+                charm: 0,
+                truth: 0,
+                beauty: -1,
+            },
         )
     }
 
