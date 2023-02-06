@@ -2,6 +2,7 @@ mod chromodynamics;
 mod constants;
 mod electrodynamics;
 mod field;
+mod system;
 
 use crate::constants::e;
 use constants::{h, C, G};
@@ -132,10 +133,6 @@ pub struct Particle {
 }
 
 impl Particle {
-    fn combine(particles: Vec<Particle>) -> ParticleCombinationOutput {
-        todo!()
-    }
-
     /// Produces an anti-particle of a given particle
     fn antiparticle(self) -> Particle {
         Particle::new(
@@ -321,21 +318,33 @@ impl Gravitation {
 
 #[cfg(test)]
 mod tests {
+    use crate::chromodynamics::Chromodynamics;
+    use crate::field::Field;
+    use crate::system::System;
     use crate::Color::Positive;
     use crate::{e, Color, ColorCharge, Fraction, Particle, ParticleCharge, ParticleMass, Spin};
     use approx::relative_eq;
     use uom::si::electric_charge::coulomb;
     use uom::si::electric_charge::Units::franklin;
-    use uom::si::energy::megaelectronvolt;
-    use uom::si::f64::{ElectricCharge, Energy};
+    use uom::si::energy::{joule, megaelectronvolt};
+    use uom::si::f64::{ElectricCharge, Energy, Time};
+    use uom::si::time::second;
 
     #[test]
     fn add_fundamental_particles() {
         let up = Particle::up_quark();
         let d1 = Particle::down_quark();
         let d2 = Particle::down_quark();
-        let compound = Particle::combine(vec![up, d1, d2]);
-        println!("CMP {:?}", compound);
+
+        let mut system = System {
+            particles: vec![up, d1, d2],
+            free_energy: Energy::new::<joule>(0.),
+        };
+
+        let fields: Vec<Box<dyn Field>> = vec![Box::new(Chromodynamics)];
+
+        system.simulate(fields, Time::new::<second>(1.));
+        println!("System is now {:?}", system);
     }
 
     #[test]
