@@ -80,12 +80,10 @@ impl Field for Chromodynamics {
                 // TODO
                 Particle::new(
                     None,
-                    Spin(Fraction(
-                        system
-                            .particles
-                            .iter()
-                            .fold(0., |acc, particle| acc + particle.spin.0 .0),
-                    )),
+                    system
+                        .particles
+                        .iter()
+                        .fold(Spin(Fraction(0.)), |acc, particle| acc + particle.spin),
                     ParticleCharge(Fraction(
                         system
                             .particles

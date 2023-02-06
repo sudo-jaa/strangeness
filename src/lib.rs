@@ -28,13 +28,21 @@ enum Color {
 /// but the internal representation needs to be replaced with SU(3) Glen-mann matrix.
 pub type ColorCharge = Option<Vec<Color>>;
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 /// Represents a fractional value
 pub struct Fraction(f64);
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 /// Opaque type that represents a spin value as a fraction
 pub struct Spin(Fraction);
+
+impl Add for Spin {
+    type Output = Spin;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        Spin(Fraction((self.0 .0 + rhs.0 .0) % 1.))
+    }
+}
 
 #[derive(Debug)]
 /// Opaque type that represents the charge of a particle as a fraction
@@ -384,6 +392,9 @@ mod tests {
                 ParticleMass::Energy(Energy::new::<megaelectronvolt>(938.27208816)),
                 QuantumFlavors::default(),
             );
+
+            println!("Proton {:?}", test);
+            println!("Proton mass {:?}", test.get_mass());
 
             assert_eq!(real.color, test.color);
             assert!(
