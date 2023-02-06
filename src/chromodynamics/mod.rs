@@ -1,10 +1,12 @@
 use crate::field::Field;
 use crate::system::System;
-use crate::Particle;
+use crate::{Fraction, Particle, ParticleCharge, ParticleMass, QuantumFlavors, Spin};
 use lazy_static::lazy_static;
 use ndarray::{Array1, Array2, ArrayBase};
 use uom::si::energy::joule;
 use uom::si::f64::{Energy, Time};
+
+use crate::Energetic;
 
 enum MatrixValue<T> {
     Real(T),
@@ -74,7 +76,39 @@ impl Field for Chromodynamics {
 
         // TODO
         *system = System {
-            particles: vec![],
+            particles: vec![
+                // TODO
+                Particle::new(
+                    None,
+                    Spin(Fraction(
+                        system
+                            .particles
+                            .iter()
+                            .fold(0., |acc, particle| acc + particle.spin.0 .0),
+                    )),
+                    ParticleCharge(Fraction(
+                        system
+                            .particles
+                            .iter()
+                            .fold(0., |acc, particle| acc + particle.charge.value),
+                    )),
+                    ParticleMass::Energy(
+                        system
+                            .particles
+                            .iter()
+                            .fold(Energy::new::<joule>(0.), |acc, particle| {
+                                acc + particle.get_energy()
+                            }),
+                    ),
+                    QuantumFlavors::combine(
+                        system
+                            .particles
+                            .iter()
+                            .map(|particle| particle.flavors)
+                            .collect::<Vec<QuantumFlavors>>(),
+                    ),
+                ),
+            ],
             free_energy: Default::default(),
         };
     }

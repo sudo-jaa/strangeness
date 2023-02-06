@@ -1,3 +1,5 @@
+extern crate core;
+
 mod chromodynamics;
 mod constants;
 mod electrodynamics;
@@ -15,7 +17,7 @@ use uom::si::force::newton;
 use uom::si::mass::kilogram;
 use uom::si::velocity::kilometer_per_second;
 
-#[derive(Debug)]
+#[derive(Debug, Eq, PartialEq)]
 /// Representation of a color charge. This is TBC
 enum Color {
     Positive,
@@ -61,7 +63,7 @@ impl ParticleCharge {
     }
 }
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq)]
 /// Represents possible quantum flavors for a given particle
 pub struct QuantumFlavors {
     pub strangeness: i8,
@@ -343,7 +345,10 @@ mod tests {
     use crate::field::Field;
     use crate::system::System;
     use crate::Color::Positive;
-    use crate::{e, Color, ColorCharge, Fraction, Particle, ParticleCharge, ParticleMass, Spin};
+    use crate::{
+        e, Color, ColorCharge, Fraction, Particle, ParticleCharge, ParticleMass, QuantumFlavors,
+        Spin,
+    };
     use approx::relative_eq;
     use uom::si::electric_charge::coulomb;
     use uom::si::electric_charge::Units::franklin;
@@ -351,21 +356,48 @@ mod tests {
     use uom::si::f64::{ElectricCharge, Energy, Time};
     use uom::si::time::second;
 
+    use crate::Massive;
+
     #[test]
-    fn add_fundamental_particles() {
+    fn combine_quarks_to_form_proton() {
         let up = Particle::up_quark();
-        let d1 = Particle::down_quark();
+        let up2 = Particle::up_quark();
         let d2 = Particle::down_quark();
 
         let mut system = System {
-            particles: vec![up, d1, d2],
+            particles: vec![up, up2, d2],
             free_energy: Energy::new::<joule>(0.),
         };
 
         let fields: Vec<Box<dyn Field>> = vec![Box::new(Chromodynamics)];
 
         system.simulate(fields, Time::new::<second>(1.));
-        println!("System is now {:?}", system);
+
+        let output = system.particles.get(0);
+
+        if output.is_some() {
+            let real = output.unwrap();
+            let test = Particle::new(
+                None,
+                Spin(Fraction(1. / 2.)),
+                ParticleCharge(Fraction(1.)),
+                ParticleMass::Energy(Energy::new::<megaelectronvolt>(938.27208816)),
+                QuantumFlavors::default(),
+            );
+
+            assert_eq!(real.color, test.color);
+            assert!(
+                relative_eq!(real.spin.0 .0, test.spin.0 .0),
+                "{:?} {:?}",
+                real.spin,
+                test.spin
+            );
+            assert!(relative_eq!(real.charge.value, test.charge.value));
+            assert!(relative_eq!(real.get_mass().value, test.get_mass().value));
+            assert_eq!(real.flavors, test.flavors);
+        } else {
+            assert!(false, "No output of the QCD simulation was found");
+        }
     }
 
     #[test]
@@ -392,9 +424,9 @@ mod tests {
         let charge_1 = ParticleCharge(Fraction((2. / 3.))).to_charge();
         let charge_2 = ParticleCharge(Fraction((2. / 3.))).to_charge();
         let charge_3 = ParticleCharge(Fraction(-(1. / 3.))).to_charge();
-        relative_eq!(
+        assert!(relative_eq!(
             (charge_1 + charge_2 + charge_3).value,
             ElectricCharge::new::<coulomb>(1. * e).value
-        );
+        ));
     }
 }
